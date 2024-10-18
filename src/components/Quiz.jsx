@@ -1,55 +1,41 @@
-import React, { useState } from "react";
-import QUESTIONS from "../questions";
-import quizCompleteImg from "../assets/quiz-complete.png";
-import QuestionTimer from "./QuestionTimer";
+import { useState, useCallback } from 'react';
 
-function Quiz() {
-  const [userAnswer, setUserAnswer] = useState([]);
+import QUESTIONS from '../questions.js';
+import Question from './Question.jsx';
+import Summary from './Summary.jsx';
 
-  const activeQuestionIndex = userAnswer.length;
+export default function Quiz() {
+  const [userAnswers, setUserAnswers] = useState([]);
 
-  const quizIsFinished = userAnswer.length === QUESTIONS.length;
+  const activeQuestionIndex = userAnswers.length;
+  const quizIsComplete = activeQuestionIndex === QUESTIONS.length;
 
-  const handleAnswerClick = (answer) => {
-    setUserAnswer((prev) => [...prev, answer]);
-  };
+  const handleSelectAnswer = useCallback(function handleSelectAnswer(
+    selectedAnswer
+  ) {
+    setUserAnswers((prevUserAnswers) => {
+      return [...prevUserAnswers, selectedAnswer];
+    });
+  },
+  []);
 
-  if (quizIsFinished) {
-    return (
-      <div id='summary'>
-        <img src={quizCompleteImg} alt='Tr Complete' />
-        <h2>Quiz Completed!</h2>
-        <p>
-          Your score is {userAnswer.length} out of {QUESTIONS.length}
-        </p>
-      </div>
-    );
-  }
-
-  const shuffledAnswers = QUESTIONS[activeQuestionIndex].answers.sort(
-    () => Math.random() - 0.5
+  const handleSkipAnswer = useCallback(
+    () => handleSelectAnswer(null),
+    [handleSelectAnswer]
   );
 
+  if (quizIsComplete) {
+    return <Summary userAnswers={userAnswers} />
+  }
+
   return (
-    <div id='quiz'>
-      <div id='question'>
-        <QuestionTimer
-          timeOut={15000}
-          onTimeOut={() => handleAnswerClick(null)}
-        />
-        <h2>{QUESTIONS[activeQuestionIndex].text}</h2>
-        <ul id='answers'>
-          {shuffledAnswers.map((option, index) => (
-            <li key={index} className='answer'>
-              <button onClick={() => handleAnswerClick(option)}>
-                {option}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+    <div id="quiz">
+      <Question
+        key={activeQuestionIndex}
+        index={activeQuestionIndex}
+        onSelectAnswer={handleSelectAnswer}
+        onSkipAnswer={handleSkipAnswer}
+      />
     </div>
   );
 }
-
-export default Quiz;
