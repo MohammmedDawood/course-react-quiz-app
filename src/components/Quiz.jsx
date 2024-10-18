@@ -1,17 +1,33 @@
 import React, { useState } from "react";
 import QUESTIONS from "../questions";
+import quizCompleteImg from "../assets/quiz-complete.png";
 
 function Quiz() {
   const [userAnswer, setUserAnswer] = useState([]);
 
   const activeQuestionIndex = userAnswer.length;
-  const shuffledAnswers = QUESTIONS[activeQuestionIndex].answers.sort(
-    () => Math.random() - 0.5
-  );
+
+  const quizIsFinished = userAnswer.length === QUESTIONS.length;
 
   const handleAnswerClick = (answer) => {
     setUserAnswer((prev) => [...prev, answer]);
   };
+
+  if (quizIsFinished) {
+    return (
+      <div id='summary'>
+        <img src={quizCompleteImg} alt='Tr Complete' />
+        <h2>Quiz Completed!</h2>
+        <p>
+          Your score is {userAnswer.length} out of {QUESTIONS.length}
+        </p>
+      </div>
+    );
+  }
+
+  const shuffledAnswers = QUESTIONS[activeQuestionIndex].answers.sort(
+    () => Math.random() - 0.5
+  );
 
   return (
     <div id='quiz'>
